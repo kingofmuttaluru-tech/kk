@@ -42,6 +42,8 @@ export interface TestParameter {
   value: string;
   unit: string;
   referenceRange: string;
+  method?: string;
+  section?: string; // e.g., 'HAEMOGRAM', 'LEUKOCYTE COUNT'
 }
 
 export interface TestResult {
@@ -49,8 +51,17 @@ export interface TestResult {
   appointmentId: string;
   patientId: string;
   patientName: string;
+  age: string;
+  gender: string;
+  refDoctor: string;
+  sampleType: string;
+  collectedAt: string;
+  receivedAt: string;
   testName: string;
   date: string;
   parameters: TestParameter[];
   doctorRemarks: string;
+  analyzerUsed?: string;
+  internalQC?: string;
+  morphology?: string;
 }

@@ -8,13 +8,17 @@ import PatientDashboard from './components/PatientDashboard';
 import StaffDashboard from './components/StaffDashboard';
 import { User, UserRole, Appointment, TestResult, AppointmentStatus } from './types';
 import { SERVICES } from './constants';
-import { User as UserIcon, Lock, ChevronRight, Stethoscope, Mail, AlertCircle } from 'lucide-react';
+// Added missing MapPin import
+import { User as UserIcon, Lock, ChevronRight, Stethoscope, Mail, AlertCircle, Phone, UserCircle, MapPin } from 'lucide-react';
 
 const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [currentPage, setCurrentPage] = useState('home');
   const [selectedServiceId, setSelectedServiceId] = useState<string | undefined>();
-  const [loginEmail, setLoginEmail] = useState('');
+  
+  // Login States
+  const [loginName, setLoginName] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   
   // Mock Initial State
@@ -61,28 +65,34 @@ const App: React.FC = () => {
   const handleLogout = () => {
     setUser(null);
     setCurrentPage('home');
-    setLoginEmail('');
+    setLoginName('');
+    setLoginPassword('');
     setLoginError('');
   };
 
   const loginAs = (role: UserRole) => {
-    if (!loginEmail || !loginEmail.trim()) {
-      setLoginError('Please enter your email address to continue.');
+    if (!loginName.trim()) {
+      setLoginError('Please enter your name.');
       return;
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginEmail)) {
-      setLoginError('This email address doesn’t look quite right. Please check it.');
+    if (!loginPassword.trim()) {
+      setLoginError('Please enter your cell number as password.');
       return;
     }
+    // Simple validation for cell number (must be numeric/long enough)
+    if (loginPassword.length < 10) {
+      setLoginError('Please enter a valid 10-digit cell number.');
+      return;
+    }
+    
     setLoginError('');
 
     const mockUser: User = role === UserRole.STAFF 
-      ? { id: 'staff_01', name: 'Dr. Balu', email: loginEmail, role: UserRole.STAFF }
-      : { id: 'patient_01', name: 'Rahul Sharma', email: loginEmail, role: UserRole.PATIENT, phone: '9876543210' };
+      ? { id: 'staff_01', name: 'Dr. Balu', email: 'balu@lab.com', role: UserRole.STAFF }
+      : { id: 'patient_01', name: loginName, email: `${loginName.toLowerCase().replace(/\s/g, '')}@example.com`, role: UserRole.PATIENT, phone: loginPassword };
     
     setUser(mockUser);
     
-    // Better UX: Navigate directly to relevant dashboard on login
     if (role === UserRole.STAFF) {
       setCurrentPage('staff-dashboard');
     } else {
@@ -127,7 +137,6 @@ const App: React.FC = () => {
           <div className="max-w-md mx-auto py-16 md:py-24 px-4 animate-in fade-in zoom-in duration-500">
             <div className="bg-white rounded-[2rem] shadow-[0_20px_50px_rgba(8,112,184,0.12)] overflow-hidden border border-gray-100">
               <div className="bg-blue-600 p-12 text-center text-white relative overflow-hidden">
-                {/* Background Pattern */}
                 <div className="absolute inset-0 opacity-10">
                   <div className="absolute -right-4 -top-4 w-24 h-24 rounded-full border-8 border-white"></div>
                   <div className="absolute left-1/4 bottom-0 w-12 h-12 rounded-full border-4 border-white"></div>
@@ -137,45 +146,51 @@ const App: React.FC = () => {
                   <div className="bg-white/20 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 backdrop-blur-md shadow-inner">
                      <Lock className="h-10 w-10 text-white" />
                   </div>
-                  <h2 className="text-3xl font-bold tracking-tight">Secure Access</h2>
-                  <p className="text-blue-100 mt-2 font-medium opacity-90">Manage your health securely</p>
+                  <h2 className="text-3xl font-bold tracking-tight">Portal Login</h2>
+                  <p className="text-blue-100 mt-2 font-medium opacity-90">Secure Patient & Staff Access</p>
                 </div>
                 
-                {/* Decorative Notch */}
                 <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-8 h-8 bg-white rotate-45 border-l border-t border-gray-50"></div>
               </div>
               
-              <div className="p-10 space-y-8 pt-14">
-                {/* Email Section */}
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center ml-1">
-                    <label htmlFor="email" className="text-sm font-bold text-gray-700">
-                      Email Address
-                    </label>
-                    {loginError && (
-                      <span className="text-red-500 text-[10px] font-bold uppercase tracking-wider animate-pulse flex items-center">
-                        <AlertCircle className="h-3 w-3 mr-1" />
-                        Check Email
-                      </span>
-                    )}
-                  </div>
+              <div className="p-10 space-y-6 pt-14">
+                {/* Name Input */}
+                <div className="space-y-2">
+                  <label htmlFor="loginName" className="text-sm font-bold text-gray-700 ml-1">
+                    Name
+                  </label>
                   <div className="relative group">
-                    <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 transition-colors duration-300 ${
-                      loginError ? 'text-red-400' : 'text-gray-400 group-focus-within:text-blue-600'
-                    }`} />
+                    <UserCircle className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-blue-600 transition-colors" />
                     <input
-                      id="email"
-                      type="email"
-                      placeholder="name@example.com"
+                      id="loginName"
+                      type="text"
+                      placeholder="Enter your full name"
                       autoFocus
-                      className={`w-full pl-12 pr-4 py-4 bg-gray-50 border-2 rounded-2xl outline-none transition-all duration-300 ${
-                        loginError 
-                          ? 'border-red-200 bg-red-50 focus:border-red-500 focus:ring-4 focus:ring-red-100' 
-                          : 'border-transparent focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-50'
-                      }`}
-                      value={loginEmail}
+                      className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent rounded-2xl outline-none focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-50 transition-all duration-300"
+                      value={loginName}
                       onChange={(e) => {
-                        setLoginEmail(e.target.value);
+                        setLoginName(e.target.value);
+                        if (loginError) setLoginError('');
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Password / Cell Number Input */}
+                <div className="space-y-2">
+                  <label htmlFor="loginPassword" className="text-sm font-bold text-gray-700 ml-1">
+                    Cell Number (Password)
+                  </label>
+                  <div className="relative group">
+                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-blue-600 transition-colors" />
+                    <input
+                      id="loginPassword"
+                      type="password"
+                      placeholder="Enter your cell number"
+                      className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent rounded-2xl outline-none focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-50 transition-all duration-300"
+                      value={loginPassword}
+                      onChange={(e) => {
+                        setLoginPassword(e.target.value);
                         if (loginError) setLoginError('');
                       }}
                       onKeyDown={(e) => {
@@ -183,18 +198,22 @@ const App: React.FC = () => {
                       }}
                     />
                   </div>
-                  {loginError && (
-                    <p className="text-red-500 text-xs mt-2 ml-1 font-medium leading-relaxed animate-in slide-in-from-top-1">
-                      {loginError}
-                    </p>
-                  )}
                 </div>
 
-                {/* Portal Buttons Section */}
-                <div className="space-y-4">
+                {loginError && (
+                  <div className="bg-red-50 border border-red-100 p-4 rounded-xl flex items-start space-x-3 animate-in slide-in-from-top-2">
+                    <AlertCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+                    <p className="text-red-600 text-xs font-semibold leading-relaxed">
+                      {loginError}
+                    </p>
+                  </div>
+                )}
+
+                {/* Portal Selection Section */}
+                <div className="space-y-4 pt-4">
                   <div className="relative flex items-center py-2">
                     <div className="flex-grow border-t border-gray-100"></div>
-                    <span className="flex-shrink mx-4 text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">Select Your Portal</span>
+                    <span className="flex-shrink mx-4 text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">Select Portal</span>
                     <div className="flex-grow border-t border-gray-100"></div>
                   </div>
                   
@@ -209,12 +228,10 @@ const App: React.FC = () => {
                         </div>
                         <div className="text-left">
                           <div className="font-bold text-gray-900 text-lg">Patient Portal</div>
-                          <div className="text-xs text-gray-500 font-medium">Reports & Appointments</div>
+                          <div className="text-xs text-gray-500 font-medium">Results & Tracking</div>
                         </div>
                       </div>
-                      <div className="w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center group-hover:border-blue-200 group-hover:bg-white transition-all">
-                        <ChevronRight className="h-5 w-5 text-gray-300 group-hover:text-blue-500 group-hover:translate-x-0.5 transition-all" />
-                      </div>
+                      <ChevronRight className="h-5 w-5 text-gray-300 group-hover:text-blue-500 group-hover:translate-x-1 transition-all" />
                     </button>
 
                     <button
@@ -227,20 +244,18 @@ const App: React.FC = () => {
                         </div>
                         <div className="text-left">
                           <div className="font-bold text-gray-900 text-lg">Staff Portal</div>
-                          <div className="text-xs text-gray-500 font-medium">Admin & Lab Processing</div>
+                          <div className="text-xs text-gray-500 font-medium">Lab Management</div>
                         </div>
                       </div>
-                      <div className="w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center group-hover:border-blue-200 group-hover:bg-white transition-all">
-                        <ChevronRight className="h-5 w-5 text-gray-300 group-hover:text-blue-500 group-hover:translate-x-0.5 transition-all" />
-                      </div>
+                      <ChevronRight className="h-5 w-5 text-gray-300 group-hover:text-blue-500 group-hover:translate-x-1 transition-all" />
                     </button>
                   </div>
                 </div>
               </div>
               
               <div className="px-10 pb-10 text-center">
-                 <p className="text-xs text-gray-400 font-medium leading-relaxed">
-                   Protected by high-level encryption. Your health data is private. By continuing, you agree to our <span className="text-blue-500 cursor-pointer hover:underline">Privacy Policy</span>.
+                 <p className="text-[10px] text-gray-400 font-medium leading-relaxed">
+                   Sri Venkateswar Clinical Laboratory uses bank-grade security for your data. By signing in, you agree to our HIPAA-compliant <span className="text-blue-500 cursor-pointer hover:underline">Terms</span>.
                  </p>
               </div>
             </div>
@@ -290,16 +305,17 @@ const App: React.FC = () => {
               </ul>
             </div>
             <div>
-              <h4 className="font-bold text-gray-900 mb-4 uppercase text-xs tracking-widest">Legal</h4>
+              <h4 className="font-bold text-gray-900 mb-4 uppercase text-xs tracking-widest">Contact</h4>
               <ul className="space-y-3 text-sm text-gray-500">
-                <li className="cursor-pointer hover:text-blue-600 transition-colors">Privacy Policy</li>
-                <li className="cursor-pointer hover:text-blue-600 transition-colors">Terms of Service</li>
+                <li className="flex items-center"><Phone className="h-4 w-4 mr-2" /> +91 99669 41485</li>
+                {/* Fixed missing MapPin component by adding it to imports */}
+                <li className="flex items-center"><MapPin className="h-4 w-4 mr-2" /> Allagadda, AP</li>
                 <li className="cursor-pointer hover:text-blue-600 transition-colors">Lab Accreditation</li>
               </ul>
             </div>
           </div>
           <div className="mt-12 pt-8 border-t border-gray-100 text-center">
-            <p className="text-sm text-gray-400 font-medium">&copy; {new Date().getFullYear()} Balu Diagnostic Centre. All Rights Reserved.</p>
+            <p className="text-sm text-gray-400 font-medium">&copy; {new Date().getFullYear()} Sri Venkateswar Clinical Laboratory. All Rights Reserved.</p>
           </div>
         </div>
       </footer>

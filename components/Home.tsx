@@ -120,11 +120,11 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
               <div className="mt-8 space-y-4">
                 <div className="flex items-center">
                   <MapPin className="h-6 w-6 mr-3 text-blue-200" />
-                  <span>Plot 45, Beside City Hospital, Main Road, Hyderabad</span>
+                  <span>T.B. ROAD, ALLAGADDA, NANDYAL DISTRICT, ANDHRA PRADESH - 518543</span>
                 </div>
                 <div className="flex items-center">
                   <Phone className="h-6 w-6 mr-3 text-blue-200" />
-                  <span>+91 98765 43210</span>
+                  <span>+91 99669 41485</span>
                 </div>
                 <div className="flex items-center">
                   <Clock className="h-6 w-6 mr-3 text-blue-200" />
@@ -135,7 +135,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
             <div className="mt-10 lg:mt-0 lg:w-1/2 rounded-2xl overflow-hidden h-64 bg-gray-200 shadow-2xl">
                 {/* Mock Map */}
                 <img 
-                  src="https://picsum.photos/seed/map/800/600" 
+                  src="https://picsum.photos/seed/allagadda/800/600" 
                   className="w-full h-full object-cover" 
                   alt="Location Map" 
                 />
