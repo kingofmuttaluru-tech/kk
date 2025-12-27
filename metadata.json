@@ -1,0 +1,7 @@
+{
+  "name": "Sri Venkateswar Digital X-Ray & Clinical Laboratory",
+  "description": "A comprehensive healthcare portal for diagnostic services, appointment booking, and secure test result management for patients and staff.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
